@@ -1,0 +1,113 @@
+[% INCLUDE 'doc-head-open.inc' %]
+ <title>Koha: OA LA API Integration: Configuration</title>
+ <style type="text/css">
+ .settingLabel {
+	text-align: right;
+}
+ .textbox {
+	width: 99%;
+	min-width:200px;
+}
+ </style>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body>
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; OA LA API Integration &rsaquo; Configuration</div>
+
+<div id="doc3">
+    <div align="right" style="float:right;width:170px"><a href="http://www.openathens.net" target="_blank"><img src="http://www.openathens.net/images/content/OA_logo.jpg" style="width:160px" ></a>
+<p>Visit <a href="http://admin.openathens.net" target="_blank">OA Admin</a> to configure the OA LA API profile</p></div>
+    <h3>Koha: OpenAthens LA API Integration: Configuration</h3>
+<!-- Notice our form here has no 'action', this is good, it means that our forms will always get passed back to 'plugins/run.pl'. You could hard code it instead if you prefer -->
+    <form method="get">
+        <!-- Always pass these two parameters so the plugin system knows what to execute! -->
+        <input type="hidden" name="class" value="[% CLASS %]"/>
+        <input type="hidden" name="method" value="[% METHOD %]"/>
+
+        <table width="100%" border="0" cellspacing="2" cellpadding="2">
+          <tr>
+            <th width="5%" nowrap class="settingLabel" scope="col">OA LA API Settings</th>
+            <th width="10%" scope="col">Value</th>
+            <th width="60%" scope="col">Instructions</th>
+          </tr>
+          <tr>
+            <th width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row"> OA Organisation ID: </th>
+			[% IF oaorgid == '' %][% oaorgid = 'Enter Organisation id' %][% END %]
+            <td align="left" valign="top"><input name="oaorgid" type="text" class="textbox" id="oaorgid" value="[% oaorgid %]" required></td>
+            <td align="left" valign="top">*Open Athens Orgainisation Id can be found in the Open Athens Admin.Go to Admin->Organizations->Unique ID.</td>
+          </tr>
+          <tr>
+            <th width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row">OA Scope: </th>
+			[% IF oascope == '' %][% oascope = 'Enter Scope' %][% END %]
+            <td align="left" valign="top"><input name="oascope" type="text" class="textbox" id="oascope" value="[% oascope %]" required></td>
+            <td align="left" valign="top">*Open Athens Scope can be found in the Open Athens Admin.Go to Admin->Organizations->Scope.</td>
+          </tr>
+          <tr>
+            <th width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row">OA API key: </th>
+			[% IF oaapikey  == '' %][% oaapikey  = 'Enter OA API Key' %][% END %]
+            <td align="left" valign="top"><input name="oaapikey" type="text" class="textbox" id="oaapikey " value="[% oaapikey  %]" required></td>
+            <td align="left" valign="top">*Open Athens API Key needs to be generated in the Open Athens Admin.Go to Admin->Management->API Keys.</td>
+          </tr>
+          <tr>
+            <th width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row">Connection ID:</th>
+			[% IF oaconnectionid == '' %][% oaconnectionid = 'Enter Connection ID' %][% END %]
+            <td align="left" valign="top"><input name="oaconnectionid" type="text" class="textbox" id="oaconnectionid" value="[% oaconnectionid %]" required></td>
+            <td align="left" valign="top">*Open Athens LA API Connection ID needs to be generated in the Open Athens Admin.Go to Admin->Management->Connections->Local Authentication->Add.</td>
+          </tr>
+             <tr>
+            <th width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row">User Attributes to be passed:</th>
+            <td align="left" valign="top">
+            <input type="text" id="params" name="params" value="[% params %]" style="display:none"/>
+	    <select class="textbox" id="attributes" multiple>
+                
+                <option id="firstname" value="firstname">FirstName</option>
+           
+                <option id="surname" value="surname">Surname</option>
+           
+                <option id="category" value="category">Category</option>
+
+                <option id="email" value="email">Email</option>
+ 
+                <option id="branchcode" value="branchcode">Branchcode</option>
+
+                <option id="cardnumber" value="cardnumber">CardNumber</option>
+            
+        	</select></td>
+            <td align="left" valign="top">Select the parameters that are to be passed to Open Athens Admin. These wil also need to be defined in the Open Athens Admin->Management->Connections->Local Authentication->Attributes section. Note: userid will be passed by default.</td>
+          </tr>
+        </table>
+        <p>
+          <input type="hidden" name="save" value="1" />
+        <input type="button" value="Save configuration" onclick="eval()"/>
+        <input type="submit" id="save" style="display:none" /> 
+	<input type="button" value="Cancel" onclick="window.location.href='/cgi-bin/koha/plugins/plugins-home.pl';" /> 
+</form>
+<script type="text/javascript">
+jQuery(document).ready(function()
+{
+    if( jQuery('#params').val() != '')
+    {
+         var paramvals = jQuery('#params').val().split(',');
+         paramvals.pop();
+         for (var i in paramvals)
+         {
+             jQuery('#' + paramvals[i]).attr('selected',true);
+         }
+    }
+});
+  
+function eval()
+{
+   var paramvals = "";
+   jQuery('#attributes :selected').each(function()
+   { 
+       paramvals += jQuery(this).val() + ","; 
+   });
+   jQuery('#params').val(paramvals);
+   jQuery('#save').click();
+}
+</script>
+[% INCLUDE 'intranet-bottom.inc' %]

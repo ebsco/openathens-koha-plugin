@@ -1,0 +1,109 @@
+[% INCLUDE 'doc-head-open.inc' %]
+ <title>Koha: OA LA API Integration: Setup Tool</title>
+[% INCLUDE 'doc-head-close.inc' %]
+</head>
+<body>
+[% INCLUDE 'header.inc' %]
+[% INCLUDE 'cat-search.inc' %]
+
+<script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
+<link rel="stylesheet" href="https://cdn.rawgit.com/google/code-prettify/master/styles/sunburst.css"></link>
+<style>pre{width:90%!important; color:#FFF;}</style>
+<div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; OA LA API Integration &rsaquo; Setup Tool</div>
+
+<div id="doc3">
+    <div align="right" style="float:right;width:170px"><a href="http://www.openathens.net" target="_blank"><img src="http://www.openathens.net/images/content/OA_logo.jpg" style="width:160px" ></a>
+<p>Visit <a href="http://admin.openathens.net" target="_blank">OA Admin</a> to configure the OA LA API profile</p></div>
+
+    <h3>Koha: OA API Integration: Setup Tool</h3>
+    <p>This setup tool documents instrutions on how to install files from the plugin directory to the main Koha folder structure.</p>
+
+<form method="post">
+        <input type="hidden" name="class" value="[% CLASS %]"/>
+        <input type="hidden" name="method" value="[% METHOD %]"/>
+    </form>
+
+<!-- Version control table to be used in future -->
+<!--table width="100%" border="0" cellpadding="5" cellspacing="5">
+      <tr>
+        <th colspan="2" align="center" valign="middle" nowrap scope="col">Version Information</th>
+        <th width="1%" align="center" valign="top" scope="col">&nbsp;</th>
+        <th align="center" valign="top" scope="col">Latest Release Notes</th>
+      </tr>
+      <tr>
+        <td width="5%" align="left" valign="middle" nowrap scope="col"><strong>Latest Version</strong></td>
+        <td width="5%" align="center" valign="middle" nowrap scope="col"><div id="latestversion">[%  latestversion %]</div></td>
+        <th width="1%" rowspan="4" align="left" valign="top" scope="col">&nbsp;</td>
+        <td rowspan="4" align="left" valign="top" scope="col"><div id="releaseNotes" style="max-height:100px; overflow:auto;">[%  releasenotes %]</div></td>
+      </tr>
+      <tr>
+        <td align="left" title="This is the version installed by a server administrator" style="cursor:help" valign="middle" nowrap scope="col"><strong>Plugin Version</strong></td>
+        <td align="center" valign="middle" nowrap scope="col">[%  pluginversion %]
+          </th>        
+  </tr>
+      <tr>
+        <td width="5%" title="This is the version installed by a Koha administrator" style="cursor:help" align="left" valign="middle" nowrap scope="col"><strong>Live Update Version</strong></td>
+        <td width="5%" align="center" valign="middle" nowrap scope="col">[%  installedversion %]</th>
+      </tr>
+      <tr>
+        <td colspan="2" align="center" valign="middle" nowrap scope="col"><input id="update-button" type="button" value="Update to selected version" onclick="UpdatePlugin();"></td>
+  </tr>
+</table-->
+	
+<table width="100%" border="0" cellspacing="5" cellpadding="5">
+  <tr>
+    <th width="1%" align="left" valign="top" scope="col">File</th>
+    <th align="left" valign="top" scope="col">Notes</th>
+    <th width="1%" align="left" valign="top" nowrap scope="col"><!--button type="button" class="btn btn-primary" title="Live Update Check" id="check-all" data-write="0" data-path="/opac/eds-detail.pl" onClick="CheckAll(this);">Live Update Check</button--></th>
+  </tr>
+<tr>
+    <th colspan="3" align="left" valign="top" nowrap scope="row">IMPORTANT: Koha files to patch - the plugin will integrate through these changes.</th>
+  </tr>
+  <tr>
+    <th width="1%" align="left" valign="top" nowrap scope="row">opac-user.tt</th>
+    <td align="left" valign="top" nowrap><p><strong>OPEN</strong> opac-user.tt in \opac\htdocs\opac-tmpl\&lt;themelang&gt;\modules and add the below code to the end of the file.
+	<br><strong>NOTE:</strong> there are spaces between ( [ and % ) and ( % and ] )in the below code. Please remove the space for the condition to work.</p>
+      <p>
+        <pre  class="prettyprint lang-html" name="textarea" cols="45" rows="3" readonly id="textarea" style="width:99%">&lt;input type="text" id="oaresponse" value="[ % OAResponse.userid % ]" style="display:none;"&gt;
+&lt;script src="/plugin/Koha/Plugin/OAKoha/OAKoha.js"&gt;&lt;/script&gt;</pre>
+        
+       </td>
+    <td width="1%" align="left" valign="top" nowrap>PATCH</td>
+  </tr>
+  <tr>
+    <th align="left" valign="top" nowrap scope="row">Auth.pm</th>
+    <td align="left" valign="top" nowrap><p><strong>OPEN </strong>Auth.pm in  \lib\C4 and add the below code <span style="background-color:#fffc00">above</span>the following commented line<span style="background-color:#fffc00"> # If the user logged in is the SCO user and he tries to go out the SCO module, log the user out removing the CGISESSID cookie</p>
+    <p>
+      <pre  class="prettyprint lang-perl" name="textarea2" cols="45" rows="3" readonly id="textarea2" style="width:99%">if ($user and $in->{'query'}->param('userid'))
+    {
+        my $userid = $in->{'query'}->param('userid');
+        my $oaresponse = {"login"=>"true","userid"=>$userid};
+	$template->param(OAResponse=>$oaresponse);
+    }</pre>
+    </p></td>
+    <td align="left" valign="top" nowrap>PATCH</td>
+  </tr>
+  
+</table>
+		<input type="button" value="Cancel" onclick="window.location.href='/cgi-bin/koha/plugins/plugins-home.pl';" /> 
+        
+
+<style>
+.FullTextLoader {
+	display:    none;
+	position:   fixed;
+	z-index:    1000;
+	top:        0;
+	left:       0;
+	height:     100%;
+	width:      100%;
+	background: rgba( 255, 255, 255, .8 ) 
+				url('[% PLUGIN_PATH %]/images/loading.gif') 
+				50% 50% 
+				no-repeat;
+}
+</style>
+
+<div class="FullTextLoader"></div>
+
+[% INCLUDE 'intranet-bottom.inc' %]
