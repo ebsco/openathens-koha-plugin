@@ -34,7 +34,7 @@ use Cwd qw( abs_path );
 use File::Basename qw( dirname );
 use Koha::Template::Plugin::Categories;
 use feature qw(switch);
-use Encode;
+use URI::Escape;
 use Try::Tiny;
 use Net::IP;
 
@@ -66,23 +66,24 @@ my $api_response = "";
 my $userid;
 
 #Get Configuration settings
-my ( $oaorgid, $oascope, $oaapikey,$oaconnectionid,$params) = "";
+my ( $oaconnectionurl, $oareturnurl, $oaapikey, $oaconnectionid, $params) = "";
 
 while ( my $r = $sth->fetchrow_hashref() ) {
 	given($r->{plugin_key}){
-		when('oaorgid') {$oaorgid=$r->{plugin_value};}
-		when('oascope') {$oascope=$r->{plugin_value};}
+		when('oaconnectionurl') {$oaconnectionurl=$r->{plugin_value};}
+		when('oareturnurl') {$oareturnurl=$r->{plugin_value};}
 		when('oaapikey') {$oaapikey=$r->{plugin_value};}
                 when('oaconnectionid') {$oaconnectionid=$r->{plugin_value};}
                 when('params') {$params=$r->{plugin_value};}
 }
 }
 
-if (defined $query->param("q"))
+if (defined $query->param("q") && defined $query->param("l"))
 {
 	require C4::Members;
 	$userid = $query->param("q");
-	my $base_url = "https://login.openathens.net/api/v1/".$oascope."/organisation/".$oaorgid."/local-auth/session";
+	my $base_url = $oaconnectionurl;
+        #"https://login.openathens.net/api/v1/".scope."/organisation/".orgid."/local-auth/session";
 	my $api_key = $oaapikey;
 
 	#Get Koha borrower details according to params specified
@@ -124,8 +125,17 @@ if (defined $query->param("q"))
     		}
     	}
 
-        #Connect to OA
-    	my %post_json = ("connectionID"=>$oaconnectionid,"uniqueUserIdentifier"=>$userid,"displayName"=>$userid,"returnUrl"=>"http://".$ENV{'HTTP_HOST'}."/cgi-bin/koha/opac-user.pl","attributes"=>$attrib_json);
+        my $return_url;
+        if ($oareturnurl == '-' || $oareturnurl == '')
+        {
+		$return_url = uri_unescape($query->param("l"));
+        }
+        else
+	{
+		$return_url = $oareturnurl;
+        }
+	#Connect to OA
+    	my %post_json = ("connectionID"=>$oaconnectionid,"uniqueUserIdentifier"=>$userid,"displayName"=>$userid,"returnUrl"=>$return_url,"attributes"=>$attrib_json);
     	my $headers = ['Content-Type:application/vnd.eduserv.iam.auth.localAccountSessionRequest+json','Authorization: OAApiKey '.$api_key];
     	my $curl = WWW::Curl::Easy->new;
     	$curl->setopt(CURLOPT_HEADER,1);

@@ -34,28 +34,22 @@
             <th width="60%" scope="col">Instructions</th>
           </tr>
           <tr>
-            <th width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row"> OA Organisation ID: </th>
-			[% IF oaorgid == '' %][% oaorgid = 'Enter Organisation id' %][% END %]
-            <td align="left" valign="top"><input name="oaorgid" type="text" class="textbox" id="oaorgid" value="[% oaorgid %]" required></td>
-            <td align="left" valign="top">*Open Athens Orgainisation Id can be found in the Open Athens Admin.Go to Admin->Organizations->Unique ID.</td>
-          </tr>
-          <tr>
-            <th width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row">OA Scope: </th>
-			[% IF oascope == '' %][% oascope = 'Enter Scope' %][% END %]
-            <td align="left" valign="top"><input name="oascope" type="text" class="textbox" id="oascope" value="[% oascope %]" required></td>
-            <td align="left" valign="top">*Open Athens Scope can be found in the Open Athens Admin.Go to Admin->Organizations->Scope.</td>
+            <th width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row"> OA LA Connection URL: </th>
+			[% IF oaconnectionurl == '' %][% placeholder = 'Enter OA LA Connection URL' %][% END %]
+            <td align="left" valign="top"><input name="oaconnectionurl" type="text" class="textbox" id="oaconnectionurl" value="[% oaconnectionurl %]" placeholder="[% placeholder %]" required></td>
+            <td align="left" valign="top">*Open Athens Connection URL can be found after generation of LA API connection in OA admin (Refer github documentation).Go to Admin->Management->Connections->Local Authentication->*Your Connection name.</td>
           </tr>
           <tr>
             <th width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row">OA API key: </th>
-			[% IF oaapikey  == '' %][% oaapikey  = 'Enter OA API Key' %][% END %]
-            <td align="left" valign="top"><input name="oaapikey" type="text" class="textbox" id="oaapikey " value="[% oaapikey  %]" required></td>
+			[% IF oaapikey  == '' %][% placeholder = 'Enter OA API Key' %][% END %]
+            <td align="left" valign="top"><input name="oaapikey" type="text" class="textbox" id="oaapikey " value="[% oaapikey  %]" placeholder="[% placeholder %]" required></td>
             <td align="left" valign="top">*Open Athens API Key needs to be generated in the Open Athens Admin.Go to Admin->Management->API Keys.</td>
           </tr>
           <tr>
             <th width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row">Connection ID:</th>
-			[% IF oaconnectionid == '' %][% oaconnectionid = 'Enter Connection ID' %][% END %]
-            <td align="left" valign="top"><input name="oaconnectionid" type="text" class="textbox" id="oaconnectionid" value="[% oaconnectionid %]" required></td>
-            <td align="left" valign="top">*Open Athens LA API Connection ID needs to be generated in the Open Athens Admin.Go to Admin->Management->Connections->Local Authentication->Add.</td>
+			[% IF oaconnectionid == '' %][% placeholder = 'Enter Connection ID' %][% END %]
+            <td align="left" valign="top"><input name="oaconnectionid" type="text" class="textbox" id="oaconnectionid" value="[% oaconnectionid %]" placeholder="[% placeholder %]" required></td>
+            <td align="left" valign="top">*Open Athens LA API Connection ID can be found after generation of LA API connection in OA admin (Refer github documentation).Go to Admin->Management->Connections->Local Authentication->*Your Connection name.</td>
           </tr>
              <tr>
             <th width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row">User Attributes to be passed:</th>
@@ -78,13 +72,19 @@
         	</select></td>
             <td align="left" valign="top">Select the parameters that are to be passed to Open Athens Admin. These wil also need to be defined in the Open Athens Admin->Management->Connections->Local Authentication->Attributes section. Note: userid will be passed by default.</td>
           </tr>
+<tr>
+            <th width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row">OA Return URL: </th>
+			[% IF oareturnurl == '' %][% placeholder = 'Enter Return URL' %][% END %]
+            <td align="left" valign="top"><input name="oareturnurl" type="text" class="textbox" id="oareturnurl" value="[% oareturnurl %]" placeholder="[% placeholder %]"></td>
+            <td align="left" valign="top">*Optional. Fill if you want to redirect users to another page after OA authentication, by default users are redirected to opac-users.pl.</td>
+          </tr>
         </table>
         <p>
           <input type="hidden" name="save" value="1" />
         <input type="button" value="Save configuration" onclick="eval()"/>
         <input type="submit" id="save" style="display:none" /> 
 	<input type="button" value="Cancel" onclick="window.location.href='/cgi-bin/koha/plugins/plugins-home.pl';" /> 
-</form>
+</sform>
 <script type="text/javascript">
 jQuery(document).ready(function()
 {

@@ -16,7 +16,8 @@ function startOAAuth(){
     {
          console.log('Begin authentication');
          var userid = jQuery('#oaresponse').val();
-         jQuery.getJSON('/plugin/Koha/Plugin/OAKoha/OAKoha.pl?q=' + userid,function(data){BeginOASession(data)});
+         var location = encodeURIComponent(window.location.href);
+         jQuery.getJSON('/plugin/Koha/Plugin/OAKoha/OAKoha.pl?q=' + userid + '&l=' + location,function(data){BeginOASession(data)});
     }
     //Call to fetch jsSHA, if needed in future
     /*jQuery.ajax({

@@ -69,12 +69,12 @@ sub configure {
 
         ## Grab the values we already have for our settings, if any exist
         $template->param(
-			oaorgid 		=> $self->retrieve_data('oaorgid'),
+			oaconnectionurl 		=> $self->retrieve_data('oaconnectionurl'),
 			oascope 		=> $self->retrieve_data('oascope'),
 			oaapikey 		=> $self->retrieve_data('oaapikey'),
 			oaconnectionid 		=> $self->retrieve_data('oaconnectionid'),
 			params  		=> $self->retrieve_data('params'),
-			
+                        placeholder             => "",
         );
 
         print $cgi->header();
@@ -84,8 +84,8 @@ sub configure {
 		
 		$self->store_data(
 				{
-					oaorgid 		=> ($cgi->param('oaorgid')?$cgi->param('oaorgid'):"-"),
-					oascope 		=> ($cgi->param('oascope')?$cgi->param('oascope'):"-"),
+					oaconnectionurl 		=> ($cgi->param('oaconnectionurl')?$cgi->param('oaconnectionurl'):"-"),
+					oareturnurl 		=> ($cgi->param('oareturnurl')?$cgi->param('oareturnurl'):"-"),
 					oaapikey 		=> ($cgi->param('oaapikey')?$cgi->param('oaapikey'):"-"),
 					oaconnectionid 		=> ($cgi->param('oaconnectionid')?$cgi->param('oaconnectionid'):"-"),
 					params  		=> ($cgi->param('params')?$cgi->param('params'):"-"),
@@ -111,10 +111,11 @@ sub install() {
 
 	
 	
-	my $enableOA = C4::Context->dbh->do("INSERT INTO `systempreferences` (`variable`, `value`, `explanation`, `type`) VALUES ('OAEnabled', '1', 'If ON, enables OA Authentication on Koha login.', 'YesNo') ON DUPLICATE KEY UPDATE `variable`='OAEnabled', `value`=1, `explanation`='If ON, enables OA Authentication on Koha login.', `type`='YesNo'");
+	#my $enableOA = C4::Context->dbh->do("INSERT INTO `systempreferences` (`variable`, `value`, `explanation`, `type`) VALUES ('OAEnabled', '1', 'If ON, enables OA Authentication on Koha login.', 'YesNo') ON DUPLICATE KEY UPDATE `variable`='OAEnabled', `value`=1, `explanation`='If ON, enables OA Authentication on Koha login.', `type`='YesNo'");
 	
 	
-	my $enableOAUpdate = C4::Context->dbh->do("UPDATE `systempreferences` SET `value`='1' WHERE `variable`='OAEnabled'");
+	
+	#my $enableOAUpdate = C4::Context->dbh->do("UPDATE `systempreferences` SET `value`='1' WHERE `variable`='OAEnabled'");
 	
 	my $pluginSQL = C4::Context->dbh->do("INSERT INTO `plugin_data` (`plugin_class`, `plugin_key`, `plugin_value`) VALUES ('OA::Plugin', 'installedversion', '".$VERSION."')");
 	#use Data::Dumper; die Dumper $pluginSQL;		
