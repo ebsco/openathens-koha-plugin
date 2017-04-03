@@ -34,6 +34,7 @@ use Cwd qw( abs_path );
 use File::Basename qw( dirname );
 use Koha::Template::Plugin::Categories;
 use feature qw(switch);
+use LWP;
 use URI::Escape;
 use Try::Tiny;
 use Net::IP;
@@ -137,38 +138,32 @@ if (defined $query->param("q") && defined $query->param("l"))
 	#Connect to OA
     	my %post_json = ("connectionID"=>$oaconnectionid,"uniqueUserIdentifier"=>$userid,"displayName"=>$userid,"returnUrl"=>$return_url,"attributes"=>$attrib_json);
     	my $headers = ['Content-Type:application/vnd.eduserv.iam.auth.localAccountSessionRequest+json','Authorization: OAApiKey '.$api_key];
-    	my $curl = WWW::Curl::Easy->new;
-    	$curl->setopt(CURLOPT_HEADER,1);
-    	$curl->setopt(CURLOPT_URL, $base_url);
-    	$curl->setopt(CURLOPT_HTTPHEADER, $headers);
-    	$curl->setopt(CURLOPT_POST(),1);
-    	$curl->setopt(CURLOPT_POSTFIELDS(),encode_json \%post_json);
-    	my $response_body;
-    	$curl->setopt(CURLOPT_WRITEDATA,\$response_body);
-    	my $retcode = $curl->perform;
-    	my %response_json;
-    	if ($retcode == 0){
-        	my $response_code = $curl->getinfo(CURLINFO_HTTP_CODE);
-        	my $response_sessn;
-        	if ($response_code == '200')
-        	{
-            		my @response_conv = split /{/, $response_body, 2;
-            		$response_sessn = '{'.$response_conv[1];
-            		my $response_sessn_json = JSON->new->utf8->decode($response_sessn);
-            		my $response_session_url = $response_sessn_json->{sessionInitiatorUrl};
-            		%response_json = ("oaResponse"=>"Success","sessionUrl"=>$response_session_url);
-            		$api_response = encode_json \%response_json;
-        	}
-        	else
-        	{
-             		%response_json = ("oaResponse"=>"Fail","data"=>$response_body);
-             		$api_response = encode_json \%response_json;
-        	}
-    	}
-    	else{
-         	%response_json = ("oaResponse"=>"Fail","error"=> $curl->errbuf);
-         	$api_response = encode_json \%response_json;
-    	}    
+	
+	my $req = HTTP::Request->new( 'POST', $base_url );
+	$req->header( 'Content-Type' => 'application/vnd.eduserv.iam.auth.localAccountSessionRequest+json' );
+	$req->header( 'Authorization' => 'OAApiKey '.$api_key);
+	$req->content( encode_json \%post_json );
+	my $lwp = LWP::UserAgent->new;
+	my $response = $lwp->request( $req );
+        $response = $response->decoded_content(charset => 'none');
+        my %response_json; 
+	try
+        {
+        	$response = JSON->new->utf8->decode($response);
+        	if (defined $response->{sessionInitiatorUrl})
+		{
+			%response_json = ("oaResponse"=>"Success","sessionUrl"=>$response->{sessionInitiatorUrl});
+		}
+		else
+		{
+			%response_json = ("oaResponse"=>"Fail","data"=>$response);
+		}
+	}
+	catch
+	{
+             %response_json = ("oaResponse"=>"Fail","error"=>"LWP  Request error");
+	};
+        $api_response = encode_json \%response_json;
 }
 
 $template->param(
