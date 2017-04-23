@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
 
 # This file is part of Koha.
 # parts copyright 2010 BibLibre
@@ -18,7 +18,7 @@
 
 
 use strict;
-#use warnings; FIXME - Bug 2505
+use warnings;
 
 use CGI qw ( -utf8 );
 
@@ -27,7 +27,6 @@ use C4::Koha;
 use C4::Output;
 use JSON;
 use Encode qw( encode is_utf8);
-use WWW::Curl::Easy;
 use MIME::Base64;
 use JSON;
 use Cwd qw( abs_path );
@@ -64,7 +63,11 @@ my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
 );
 
 my $api_response = "";
-my $userid;
+
+if($query->cookie('oasession')==1){ # exit if OASession cookie exists.
+	use Data::Dumper; die Dumper $query->cookie('oasession');
+}
+
 
 #Get Configuration settings
 my ( $oaconnectionurl, $oareturnurl, $oaapikey, $oaconnectionid, $params) = "";
@@ -76,95 +79,76 @@ while ( my $r = $sth->fetchrow_hashref() ) {
 		when('oaapikey') {$oaapikey=$r->{plugin_value};}
                 when('oaconnectionid') {$oaconnectionid=$r->{plugin_value};}
                 when('params') {$params=$r->{plugin_value};}
-}
+	}
 }
 
-if (defined $query->param("q") && defined $query->param("l"))
-{
 	require C4::Members;
-	$userid = $query->param("q");
 	my $base_url = $oaconnectionurl;
-        #"https://login.openathens.net/api/v1/".scope."/organisation/".orgid."/local-auth/session";
 	my $api_key = $oaapikey;
 
 	#Get Koha borrower details according to params specified
+	#Borrower details are obtained in context of a logged in user.
 	my @params_arr = split /,/, $params;
 	my $attrib_json = {};
-	if (scalar @params_arr > 0)
-    	{
-        	my $borrow = C4::Members::GetMember( borrowernumber => $borrowernumber );
-    		while (my $element = shift(@params_arr))
-    		{
-			given($element){
-                        when('surname'){
-					my $surname = $borrow->{surname};
-					$attrib_json->{"surname"} = $surname;
-				}
-			when('category'){
-					my $categorycode = $borrow->{categorycode};
-					my $category = Koha::Template::Plugin::Categories->GetName($categorycode);
-					$attrib_json->{"category"} = $category;
-				}
-			when('firstname'){
-					my $firstname = $borrow->{firstname};
-					$attrib_json->{"firstname"} = $firstname;
-				}
-			when('email'){
-					my $email = $borrow->{email};
-					$attrib_json->{"email"} = $email;
-				}
-			when('cardnumber'){
-					my $cardnumber = $borrow->{cardnumber};
-					$attrib_json->{"cardnumber"} = $cardnumber;
-				}
-			when('branchcode'){
-					my $branchcode = $borrow->{branchcode};
-					$attrib_json->{"branchcode"} = $branchcode;
-				}
-
-                        }
+	
+	my $borrow = C4::Members::GetMember( borrowernumber => $borrowernumber );
+	if (defined $query->param("borrow")){use Data::Dumper; die Dumper $borrow;}
+	
+	if (scalar @params_arr > 0){
+    		while (my $element = shift(@params_arr)){ #Build Attributes
+				$attrib_json->{$element} = $borrow->{$element};
     		}
     	}
 
         my $return_url;
         if ($oareturnurl == '-' || $oareturnurl == '')
         {
-		$return_url = uri_unescape($query->param("l"));
-        }
-        else
-	{
-		$return_url = $oareturnurl;
-        }
-	#Connect to OA
-    	my %post_json = ("connectionID"=>$oaconnectionid,"uniqueUserIdentifier"=>$userid,"displayName"=>$userid,"returnUrl"=>$return_url,"attributes"=>$attrib_json);
-    	my $headers = ['Content-Type:application/vnd.eduserv.iam.auth.localAccountSessionRequest+json','Authorization: OAApiKey '.$api_key];
+			if( defined $query->param("l")){
+				$return_url = uri_unescape($query->param("l"));
+			}else{
+				$return_url = $ENV{'REQUEST_SCHEME'}.'://'.$ENV{'HTTP_HOST'}.'/cgi-bin/koha/opac-user.pl';
+			}
+        }else{$return_url = $oareturnurl;}
+		
+		#Connect to OA
+    	my %post_json = ("connectionID"=> $oaconnectionid,
+						"uniqueUserIdentifier"=> $borrow->{userid},
+						"displayName"=> $borrow->{othernames},
+						"returnUrl"=> $return_url,
+						"attributes"=> $attrib_json);
+		
+	if (defined $query->param("request")){use Data::Dumper; die Dumper %post_json;}
 	
 	my $req = HTTP::Request->new( 'POST', $base_url );
-	$req->header( 'Content-Type' => 'application/vnd.eduserv.iam.auth.localAccountSessionRequest+json' );
+	$req->header( 'Content-Type' => 'application/json' );
 	$req->header( 'Authorization' => 'OAApiKey '.$api_key);
 	$req->content( encode_json \%post_json );
+	
 	my $lwp = LWP::UserAgent->new;
 	my $response = $lwp->request( $req );
-        $response = $response->decoded_content(charset => 'none');
-        my %response_json; 
-	try
-        {
-        	$response = JSON->new->utf8->decode($response);
-        	if (defined $response->{sessionInitiatorUrl})
-		{
+	$response = $response->decoded_content(charset => 'none');
+	
+	my %response_json; 
+	if (defined $query->param("response")){use Data::Dumper; die Dumper $response;}
+		
+	try{
+		$response = JSON->new->utf8->decode($response);
+		if (defined $response->{sessionInitiatorUrl}){
 			%response_json = ("oaResponse"=>"Success","sessionUrl"=>$response->{sessionInitiatorUrl});
-		}
-		else
-		{
+		}else{
 			%response_json = ("oaResponse"=>"Fail","data"=>$response);
 		}
-	}
-	catch
-	{
-             %response_json = ("oaResponse"=>"Fail","error"=>"LWP  Request error");
-	};
-        $api_response = encode_json \%response_json;
-}
+	}catch{ %response_json = ("oaResponse"=>"Fail","error"=>"$_"); };
+	
+	$api_response = encode_json \%response_json;
+	
+	
+my $OASession = $query->cookie(
+                            -name => 'oasession',
+                            -value => 1
+                );
+				
+$cookie = [$cookie, $OASession];				
 
 $template->param(
 api_response	=> $api_response,
