@@ -68,7 +68,6 @@ if($query->cookie('oasession')==1){ # exit if OASession cookie exists.
 	use Data::Dumper; die Dumper $query->cookie('oasession');
 }
 
-
 #Get Configuration settings
 my ( $oaconnectionurl, $oareturnurl, $oaapikey, $oaconnectionid, $params) = "";
 
@@ -81,7 +80,6 @@ while ( my $r = $sth->fetchrow_hashref() ) {
                 when('params') {$params=$r->{plugin_value};}
 	}
 }
-
 	require C4::Members;
 	my $base_url = $oaconnectionurl;
 	my $api_key = $oaapikey;
@@ -96,10 +94,14 @@ while ( my $r = $sth->fetchrow_hashref() ) {
 	
 	if (scalar @params_arr > 0){
     		while (my $element = shift(@params_arr)){ #Build Attributes
-				$attrib_json->{$element} = $borrow->{$element};
+			given($element){
+			when('category') {  $attrib_json->{"category"} = Koha::Template::Plugin::Categories->GetName($borrow->{"categorycode"});
+					     }
+			default {     $attrib_json->{$element} = $borrow->{$element};
+				}
+			}
     		}
     	}
-
         my $return_url;
         if ($oareturnurl == '-' || $oareturnurl == '')
         {
@@ -113,7 +115,7 @@ while ( my $r = $sth->fetchrow_hashref() ) {
 		#Connect to OA
     	my %post_json = ("connectionID"=> $oaconnectionid,
 						"uniqueUserIdentifier"=> $borrow->{userid},
-						"displayName"=> $borrow->{othernames},
+						"displayName"=> $borrow->{userid},
 						"returnUrl"=> $return_url,
 						"attributes"=> $attrib_json);
 		

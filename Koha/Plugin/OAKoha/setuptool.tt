@@ -21,7 +21,6 @@
 <form method="post">
         <input type="hidden" name="class" value="[% CLASS %]"/>
         <input type="hidden" name="method" value="[% METHOD %]"/>
-    </form>
 
 <!-- Version control table to be used in future -->
 <!--table width="100%" border="0" cellpadding="5" cellspacing="5">
@@ -47,47 +46,30 @@
       </tr>
       <tr>
         <td colspan="2" align="center" valign="middle" nowrap scope="col"><input id="update-button" type="button" value="Update to selected version" onclick="UpdatePlugin();"></td>
-  </tr>
-</table-->
-	
-<table width="100%" border="0" cellspacing="5" cellpadding="5">
-  <tr>
-    <th width="1%" align="left" valign="top" scope="col">File</th>
-    <th align="left" valign="top" scope="col">Notes</th>
-    <th width="1%" align="left" valign="top" nowrap scope="col"><!--button type="button" class="btn btn-primary" title="Live Update Check" id="check-all" data-write="0" data-path="/opac/eds-detail.pl" onClick="CheckAll(this);">Live Update Check</button--></th>
-  </tr>
+  </tr-->
+<table width="100%" border="0" cellspacing="2" cellpadding="2">
 <tr>
-    <th colspan="3" align="left" valign="top" nowrap scope="row">IMPORTANT: Koha files to patch - the plugin will integrate through these changes.</th>
-  </tr>
-  <tr>
-    <th width="1%" align="left" valign="top" nowrap scope="row">opac-user.tt</th>
-    <td align="left" valign="top" nowrap><p><strong>OPEN</strong> opac-user.tt in \opac\htdocs\opac-tmpl\&lt;themelang&gt;\modules and add the below code to the end of the file.
-	<br><strong>NOTE:</strong> there are spaces between ( [ and % ) and ( % and ] )in the below code. Please remove the space for the condition to work.</p>
-      <p>
-        <pre  class="prettyprint lang-html" name="textarea" cols="45" rows="3" readonly id="textarea" style="width:99%">&lt;input type="text" id="oaresponse" value="[ % OAResponse.userid % ]" style="display:none;"&gt;
-&lt;script src="/plugin/Koha/Plugin/OAKoha/OAKoha.js"&gt;&lt;/script&gt;</pre>
-        
-       </td>
-    <td width="1%" align="left" valign="top" nowrap>PATCH</td>
-  </tr>
-  <tr>
-    <th align="left" valign="top" nowrap scope="row">Auth.pm</th>
-    <td align="left" valign="top" nowrap><p><strong>OPEN </strong>Auth.pm in  \lib\C4 and add the below code <span style="background-color:#fffc00">above</span>the following commented line<span style="background-color:#fffc00"> # If the user logged in is the SCO user and he tries to go out the SCO module, log the user out removing the CGISESSID cookie</p>
-    <p>
-      <pre  class="prettyprint lang-perl" name="textarea2" cols="45" rows="3" readonly id="textarea2" style="width:99%">if ($user and $in->{'query'}->param('userid'))
-    {
-        my $userid = $in->{'query'}->param('userid');
-        my $oaresponse = {"login"=>"true","userid"=>$userid};
-	$template->param(OAResponse=>$oaresponse);
-    }</pre>
-    </p></td>
-    <td align="left" valign="top" nowrap>PATCH</td>
-  </tr>
-  
+            <th width="5%" nowrap class="settingLabel" scope="col">OA LA Settings</th>
+            <th width="40%" scope="col">Fields</th>
+            <th width="30%" scope="col">Instructions</th>
+</tr>
+<tr>
+            <td width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row">User Attributes to be passed:</td>
+            <td width="40%" align="left" valign="top">
+	    <input type="text" id="params" name="params" value="[% params %]" style="display:none"/>
+	    [% FOREACH b IN borrower_fields %]
+		<input type="checkbox" value="[% b %]" class="borrowerfields" id="borrowerfield_[% b %]"><label for="borrowerfield_[% b %]" class="borrowerfield_checkbox">[% b %]</label><br/>
+	    [% END %]
+            </td>
+            <td width="30%" align="left" valign="top">Optional. Select the parameters that are to be passed to Open Athens Admin. These need to be defined in the Open Athens Admin->Management->Connections->Local Authentication->Attributes section as well. Note: userid will be passed by default.</td>
+          </tr>
 </table>
-		<input type="button" value="Cancel" onclick="window.location.href='/cgi-bin/koha/plugins/plugins-home.pl';" /> 
+<input type="hidden" name="save" value="1" />
+<input type="button" value="Save configuration" onclick="eval()"/>
+<input type="submit" id="save" style="display:none" />
+<input type="button" value="Cancel" onclick="window.location.href='/cgi-bin/koha/plugins/plugins-home.pl';" /> 
         
-
+</form>
 <style>
 .FullTextLoader {
 	display:    none;
@@ -103,6 +85,31 @@
 				no-repeat;
 }
 </style>
+<script type="text/javascript">
+jQuery(document).ready(function()
+{
+    if( jQuery('#params').val() != '')
+    {
+         var paramvals = jQuery('#params').val().split(',');
+         paramvals.pop();
+         for (var i in paramvals)
+         {
+             jQuery('#borrowerfield_' + paramvals[i]).prop('checked',true);
+         }
+    }
+});
+  
+function eval()
+{
+   var paramvals = "";
+   jQuery('.borrowerfields:checked').each(function()
+   { 
+       paramvals += jQuery(this).val() + ","; 
+   });
+   jQuery('#params').val(paramvals);
+   jQuery('#save').click();
+}
+</script>
 
 <div class="FullTextLoader"></div>
 

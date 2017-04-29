@@ -19,7 +19,7 @@ function startOAAuth(){
          console.log('Begin authentication');
          var location = encodeURIComponent(window.location.href);
          jQuery.getJSON('/plugin/Koha/Plugin/OAKoha/OAKoha.pl?l=' + location,function(data){BeginOASession(data)});
-		jQuery('.breadcrumb').before('<div style="padding:15px;background-color:#5d3260;color:#FFF;font-weight:bold;">Authenticating into OpenAthens. Please wait...<div>');
+		jQuery('.breadcrumb').before('<div id="oaTag" style="padding:15px;background-color:#5d3260;color:#FFF;font-weight:bold;">Authenticating into OpenAthens. Please wait...<div>');
     }else{
 		Cookies.remove('oasession');
 	}
@@ -30,7 +30,7 @@ function startOAAuth(){
 		 if (data['oaResponse'] == 'Success')
 		 {
 			 Cookies.set('oasession', '1');
-			 window.location = data['sessionUrl'];
+                         window.location = data['sessionUrl'];
 		 }
 		 else
 		 {
@@ -42,6 +42,8 @@ function startOAAuth(){
 			 {
 				  console.log(data['error']);
 			 }
+			 //display error message if authentication fails
+			 jQuery('#oaTag').html("Open Athens Authentication failed. Please contact your administrator if you are authorised.");
 		 }
 		 return;
 	}

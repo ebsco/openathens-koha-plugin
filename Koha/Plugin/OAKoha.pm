@@ -73,7 +73,6 @@ sub configure {
 			oascope 		=> $self->retrieve_data('oascope'),
 			oaapikey 		=> $self->retrieve_data('oaapikey'),
 			oaconnectionid 		=> $self->retrieve_data('oaconnectionid'),
-			params  		=> $self->retrieve_data('params'),
                         placeholder             => "",
         );
 
@@ -88,12 +87,54 @@ sub configure {
 					oareturnurl 		=> ($cgi->param('oareturnurl')?$cgi->param('oareturnurl'):"-"),
 					oaapikey 		=> ($cgi->param('oaapikey')?$cgi->param('oaapikey'):"-"),
 					oaconnectionid 		=> ($cgi->param('oaconnectionid')?$cgi->param('oaconnectionid'):"-"),
-					params  		=> ($cgi->param('params')?$cgi->param('params'):"-"),
 				}
 			);
 		
         $self->go_home();
     }
+}
+
+
+sub SetupTool {
+	my ( $self, $args ) = @_;
+	my $cgi = $self->{'cgi'};
+
+        unless ( $cgi->param('save') ) {
+        	my $template = $self->get_template({ file => 'setuptool.tt' });
+		#Get Borrower Fields
+		my $dbh = C4::Context->dbh;
+		my $sql = "DESCRIBE borrowers";
+		my $sth = $dbh->prepare($sql);
+		$sth->execute();
+		my @borrower_fields;
+		while ( my $r = $sth->fetchrow_hashref() ) 
+		{ 
+			given($r->{Field}){
+			when('categorycode') {  $r->{Field} = 'category';
+						push @borrower_fields, $r->{Field};
+					     }
+			default {     push @borrower_fields, $r->{Field};
+				}
+			}
+		}
+		#Print Borrower fields
+		#use Data::Dumper; 
+                #die Dumper @borrower_fields;
+		$template->param(
+			params 		=> $self->retrieve_data('params'),
+			borrower_fields => \@borrower_fields,
+		);
+		print $cgi->header();
+		print $template->output();
+	}
+	else {
+		$self->store_data(
+				{
+					params 		=> ($cgi->param('params')?$cgi->param('params'):"-"),
+				}
+		);
+		$self->go_home();
+	}
 }
 
 
@@ -135,15 +176,4 @@ sub uninstall() {
 	
 	my $enableOAUpdate = C4::Context->dbh->do("UPDATE `systempreferences` SET `value`='1' WHERE `variable`='OAEnabled'");
 }
-
-sub SetupTool {
-	my ( $self, $args ) = @_;
-	my $cgi = $self->{'cgi'};
-
-	my $template = $self->get_template({ file => 'setuptool.tt' });
-
-	print $cgi->header();
-	print $template->output();
-}
 1;
-

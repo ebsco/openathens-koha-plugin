@@ -51,27 +51,6 @@
             <td align="left" valign="top"><input name="oaconnectionid" type="text" class="textbox" id="oaconnectionid" value="[% oaconnectionid %]" placeholder="[% placeholder %]" required></td>
             <td align="left" valign="top">*Open Athens LA API Connection ID can be found after generation of LA API connection in OA admin (Refer github documentation).Go to Admin->Management->Connections->Local Authentication->*Your Connection name.</td>
           </tr>
-             <tr>
-            <th width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row">User Attributes to be passed:</th>
-            <td align="left" valign="top">
-            <input type="text" id="params" name="params" value="[% params %]" style="display:none"/>
-	    <select class="textbox" id="attributes" multiple>
-                
-                <option id="firstname" value="firstname">FirstName</option>
-           
-                <option id="surname" value="surname">Surname</option>
-           
-                <option id="category" value="category">Category</option>
-
-                <option id="email" value="email">Email</option>
- 
-                <option id="branchcode" value="branchcode">Branchcode</option>
-
-                <option id="cardnumber" value="cardnumber">CardNumber</option>
-            
-        	</select></td>
-            <td align="left" valign="top">Select the parameters that are to be passed to Open Athens Admin. These wil also need to be defined in the Open Athens Admin->Management->Connections->Local Authentication->Attributes section. Note: userid will be passed by default.</td>
-          </tr>
 <tr>
             <th width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row">OA Return URL: </th>
 			[% IF oareturnurl == '' %][% placeholder = 'Enter Return URL' %][% END %]
@@ -84,30 +63,5 @@
         <input type="button" value="Save configuration" onclick="eval()"/>
         <input type="submit" id="save" style="display:none" /> 
 	<input type="button" value="Cancel" onclick="window.location.href='/cgi-bin/koha/plugins/plugins-home.pl';" /> 
-</sform>
-<script type="text/javascript">
-jQuery(document).ready(function()
-{
-    if( jQuery('#params').val() != '')
-    {
-         var paramvals = jQuery('#params').val().split(',');
-         paramvals.pop();
-         for (var i in paramvals)
-         {
-             jQuery('#' + paramvals[i]).attr('selected',true);
-         }
-    }
-});
-  
-function eval()
-{
-   var paramvals = "";
-   jQuery('#attributes :selected').each(function()
-   { 
-       paramvals += jQuery(this).val() + ","; 
-   });
-   jQuery('#params').val(paramvals);
-   jQuery('#save').click();
-}
-</script>
+</form>
 [% INCLUDE 'intranet-bottom.inc' %]
