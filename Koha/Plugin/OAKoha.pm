@@ -16,16 +16,16 @@ my $PluginDir = C4::Context->config("pluginsdir");
 $PluginDir = $PluginDir.'/Koha/Plugin/OAKoha';
 
 ## Here we set our plugin version
-our $VERSION = 16.1101;
+our $VERSION = 16.1102;
 
 ## Here is our metadata, some keys are required, some are optional
 our $metadata = {
     name   => 'OpenAthens',
     author => 'KM - kmukhopadhyay@ebsco.com',
     description =>
-'This plugin integrates Open Athens(OA) in Koha.<p>Go to Run tool (left) for setup instructions and then Configure(right) to configure the API Plugin.</p>',
+'This plugin integrates Open Athens(OA) in Koha.<p>Go to Actions:Configure to set the API connection then go to the Actions:Run to configure attributes.</p>',
     date_authored   => '2017-03-28',
-    date_updated    => '2017-04-23',
+    date_updated    => '2017-05-08',
     minimum_version => '16.11',
     maximum_version => '',
     version         => $VERSION,
@@ -56,7 +56,6 @@ sub tool {
         $self->SetupTool();
     }
 
-
 }
 
 ## Logic for configure method
@@ -69,11 +68,11 @@ sub configure {
 
         ## Grab the values we already have for our settings, if any exist
         $template->param(
-			oaconnectionurl 		=> $self->retrieve_data('oaconnectionurl'),
-			oascope 		=> $self->retrieve_data('oascope'),
-			oaapikey 		=> $self->retrieve_data('oaapikey'),
+			oaconnectionurl 	=> $self->retrieve_data('oaconnectionurl'),
+			oareturnurl			=> $self->retrieve_data('oareturnurl'),
+			oaapikey 			=> $self->retrieve_data('oaapikey'),
 			oaconnectionid 		=> $self->retrieve_data('oaconnectionid'),
-                        placeholder             => "",
+			placeholder         => "",
         );
 
         print $cgi->header();
@@ -83,9 +82,9 @@ sub configure {
 		
 		$self->store_data(
 				{
-					oaconnectionurl 		=> ($cgi->param('oaconnectionurl')?$cgi->param('oaconnectionurl'):"-"),
+					oaconnectionurl 	=> ($cgi->param('oaconnectionurl')?$cgi->param('oaconnectionurl'):"-"),
 					oareturnurl 		=> ($cgi->param('oareturnurl')?$cgi->param('oareturnurl'):"-"),
-					oaapikey 		=> ($cgi->param('oaapikey')?$cgi->param('oaapikey'):"-"),
+					oaapikey 			=> ($cgi->param('oaapikey')?$cgi->param('oaapikey'):"-"),
 					oaconnectionid 		=> ($cgi->param('oaconnectionid')?$cgi->param('oaconnectionid'):"-"),
 				}
 			);

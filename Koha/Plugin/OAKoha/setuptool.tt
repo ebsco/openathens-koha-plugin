@@ -16,7 +16,8 @@
 <p>Visit <a href="http://admin.openathens.net" target="_blank">OA Admin</a> to configure the OA LA API profile</p></div>
 
     <h3>Koha: OA API Integration: Setup Tool</h3>
-    <p>This setup tool documents instrutions on how to install files from the plugin directory to the main Koha folder structure.</p>
+		<p>When you connect Koha to OpenAthens you have the ability to map attributes from one system to the other - e.g. the 'email' for a borrower could be mapped to an Email address attribute in OpenAthens. <br>
+		<a href="https://docs.openathens.net/display/public/MD/Attribute+mapping" target="_blank">Click here</a> to learn more about Attribute mapping.</p>
 
 <form method="post">
         <input type="hidden" name="class" value="[% CLASS %]"/>
@@ -47,28 +48,36 @@
       <tr>
         <td colspan="2" align="center" valign="middle" nowrap scope="col"><input id="update-button" type="button" value="Update to selected version" onclick="UpdatePlugin();"></td>
   </tr-->
+  
+
 <table width="100%" border="0" cellspacing="2" cellpadding="2">
-<tr>
-            <th width="5%" nowrap class="settingLabel" scope="col">OA LA Settings</th>
-            <th width="40%" scope="col">Fields</th>
-            <th width="30%" scope="col">Instructions</th>
-</tr>
-<tr>
-            <td width="5%" align="left" valign="top" nowrap class="settingLabel" scope="row">User Attributes to be passed:</td>
-            <td width="40%" align="left" valign="top">
-	    <input type="text" id="params" name="params" value="[% params %]" style="display:none"/>
-	    [% FOREACH b IN borrower_fields %]
-		<input type="checkbox" value="[% b %]" class="borrowerfields" id="borrowerfield_[% b %]"><label for="borrowerfield_[% b %]" class="borrowerfield_checkbox">[% b %]</label><br/>
-	    [% END %]
+		<tr>
+            <th style="text-align: left; padding: 10px;">
+				<p>Select the following borrower details to send to Open Athens on user logon. <br>
+					Note: These need to be mapped in the Open Athens Admin > Management > Connections > Local Authentication > Attributes. <br>
+	userid will be passed by default.</p>
+            </th>
+		</tr>
+		<tr>
+            <td align="left" valign="top" style="padding: 20px;">
+				<input type="text" id="params" name="params" value="[% params %]" style="display:none"/>
+				<div class="columns"><ul>
+					[% FOREACH b IN borrower_fields %]
+					<li>
+					<input type="checkbox" value="[% b %]" class="borrowerfields" id="borrowerfield_[% b %]"> <label for="borrowerfield_[% b %]" class="borrowerfield_checkbox">[% b %]</label></li>
+					[% END %]
+				</ul></div>
             </td>
-            <td width="30%" align="left" valign="top">Optional. Select the parameters that are to be passed to Open Athens Admin. These need to be defined in the Open Athens Admin->Management->Connections->Local Authentication->Attributes section as well. Note: userid will be passed by default.</td>
           </tr>
-</table>
-<input type="hidden" name="save" value="1" />
-<input type="button" value="Save configuration" onclick="eval()"/>
-<input type="submit" id="save" style="display:none" />
-<input type="button" value="Cancel" onclick="window.location.href='/cgi-bin/koha/plugins/plugins-home.pl';" /> 
-        
+			<tr>
+				<td style="padding: 10px;">
+					<input type="hidden" name="save" value="1" />
+					<input type="button" value="Save configuration" onclick="eval()"/>
+					<input type="submit" id="save" style="display:none" />
+					<input type="button" value="Cancel" onclick="window.location.href='/cgi-bin/koha/plugins/plugins-home.pl';" /> 
+				</td>
+			</tr>
+</table>        
 </form>
 <style>
 .FullTextLoader {
@@ -84,6 +93,43 @@
 				50% 50% 
 				no-repeat;
 }
+#content       
+{
+    font-size: .75em; /* 12/16 */
+    width: 71.875%; /* 650/960 */
+    text-align: left;
+    margin: 0px auto; /*auto centers the container */
+    padding: 3.84615384615385%; /* 25/650 */
+}
+/*CSS3 multiple columns.*/
+/* Get em size for colums: 184/16 */   
+.columns
+{   
+    -moz-column-width: 11.5em; /* Firefox */
+    -webkit-column-width: 11.5em; /* webkit, Safari, Chrome */
+    column-width: 11.5em;
+}
+/*remove standard list and bullet formatting from ul*/
+.columns ul
+{
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+.columns ul li{
+    list-style-type: none;
+    border: 1px solid #e2dddd;
+    padding: 6px;
+    margin: 10px;
+    border-radius: 3px;
+    word-wrap: break-word;
+    background-color: #f7f4f4;
+}
+/* correct webkit/chrome uneven margin on the first column*/
+.columns ul li:first-child
+{
+    margin-top:0px;
+}
 </style>
 <script type="text/javascript">
 jQuery(document).ready(function()
@@ -97,6 +143,8 @@ jQuery(document).ready(function()
              jQuery('#borrowerfield_' + paramvals[i]).prop('checked',true);
          }
     }
+	jQuery('#borrowerfield_userid').css('display','none');
+	jQuery('#borrowerfield_password').css('display','none');
 });
   
 function eval()

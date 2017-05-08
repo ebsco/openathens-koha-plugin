@@ -90,7 +90,7 @@ while ( my $r = $sth->fetchrow_hashref() ) {
 	my $attrib_json = {};
 	
 	my $borrow = C4::Members::GetMember( borrowernumber => $borrowernumber );
-	if (defined $query->param("borrow")){use Data::Dumper; die Dumper $borrow;}
+	if (defined $query->param("borrower")){use Data::Dumper; die Dumper $borrow;}
 	
 	if (scalar @params_arr > 0){
     		while (my $element = shift(@params_arr)){ #Build Attributes
