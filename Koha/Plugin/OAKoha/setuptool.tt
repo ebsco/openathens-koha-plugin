@@ -15,7 +15,7 @@
     <div align="right" style="float:right;width:170px"><a href="http://www.openathens.net" target="_blank"><img src="http://www.openathens.net/images/content/OA_logo.jpg" style="width:160px" ></a>
 <p>Visit <a href="http://admin.openathens.net" target="_blank">OA Admin</a> to configure the OA LA API profile</p></div>
 
-    <h3>Koha: OA API Integration: Setup Tool</h3>
+    <h3>Koha: OpenAthens: Setup Tool</h3>
 		<p>When you connect Koha to OpenAthens you have the ability to map attributes from one system to the other - e.g. the 'email' for a borrower could be mapped to an Email address attribute in OpenAthens. <br>
 		<a href="https://docs.openathens.net/display/public/MD/Attribute+mapping" target="_blank">Click here</a> to learn more about Attribute mapping.</p>
 
@@ -71,6 +71,12 @@
           </tr>
 			<tr>
 				<td style="padding: 10px;">
+					<span id="spanbutton" style="background-color:#FFF; padding: 10px;">
+						<strong>Enable OpenAthens</strong> 
+						<label><input type="radio" name="oaenabled" id="oaenabled-1" value="1" /> Yes</label>
+						<label><input type="radio" name="oaenabled" id="oaenabled-0" value="0" /> No</label>
+					</span>
+					<input type="hidden" name="enableoa" id="enableoa" value="[% enableOA %]"/>
 					<input type="hidden" name="save" value="1" />
 					<input type="button" value="Save configuration" onclick="eval()"/>
 					<input type="submit" id="save" style="display:none" />
@@ -116,7 +122,7 @@
     padding: 0;
     list-style-type: none;
 }
-.columns ul li{
+.columns ul li, #spanbutton{
     list-style-type: none;
     border: 1px solid #e2dddd;
     padding: 6px;
@@ -145,6 +151,7 @@ jQuery(document).ready(function()
     }
 	jQuery('#borrowerfield_userid').css('display','none');
 	jQuery('#borrowerfield_password').css('display','none');
+	(jQuery('#enableoa').val()==1)?jQuery('#oaenabled-1').trigger('click'):jQuery('#oaenabled-0').trigger('click');
 });
   
 function eval()
