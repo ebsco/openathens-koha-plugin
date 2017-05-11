@@ -113,7 +113,6 @@ while ( my $r = $sth->fetchrow_hashref() ) {
 				$return_url = uri_unescape($query->param("l"));
 			}elsif( defined $query->param("oaurl")){
 				$return_url = uri_unescape($query->param("oaurl"));
-				print $query->redirect($return_url);
 			}else{
 				$return_url = $ENV{'REQUEST_SCHEME'}.'://'.$ENV{'HTTP_HOST'}.'/cgi-bin/koha/opac-user.pl';
 			}
@@ -148,15 +147,19 @@ while ( my $r = $sth->fetchrow_hashref() ) {
 			%response_json = ("oaResponse"=>"Fail","data"=>$response);
 		}
 	}catch{ %response_json = ("oaResponse"=>"Fail","error"=>"$_"); };
-	
+	 
 	$api_response = encode_json \%response_json;
+	
+	if(not defined $query->param("l")){
+		$api_response = '<script>window.location.href="'.$response->{sessionInitiatorUrl}.'"</script>';
+	}
 	
 	
 my $OASession = $query->cookie(
                             -name => 'oasession',
                             -value => 1
                 );
-				
+				 
 $cookie = [$cookie, $OASession];				
 
 $template->param(
