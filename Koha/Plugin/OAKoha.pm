@@ -16,7 +16,7 @@ my $PluginDir = C4::Context->config("pluginsdir");
 $PluginDir = $PluginDir.'/Koha/Plugin/OAKoha';
 
 ## Here we set our plugin version
-our $VERSION = 16.1103;
+our $VERSION = 16.1104;
 
 ## Here is our metadata, some keys are required, some are optional
 our $metadata = {
@@ -25,7 +25,7 @@ our $metadata = {
     description =>
 'This plugin integrates Open Athens(OA) in Koha.<p>Go to Actions:Configure to set the API connection then go to the Actions:Run to configure attributes.</p>',
     date_authored   => '2017-03-28',
-    date_updated    => '2017-05-09',
+    date_updated    => '2017-05-11',
     minimum_version => '16.11',
     maximum_version => '',
     version         => $VERSION,

@@ -65,6 +65,10 @@ my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
 my $api_response = "";
 
 if($query->cookie('oasession')==1){ # exit if OASession cookie exists.
+	if( defined $query->param("oaurl")){
+		my $return_url = uri_unescape($query->param("oaurl")); 
+		print $query->redirect($return_url);
+	}
 	use Data::Dumper; die Dumper $query->cookie('oasession');
 }
 
@@ -107,6 +111,9 @@ while ( my $r = $sth->fetchrow_hashref() ) {
         {
 			if( defined $query->param("l")){
 				$return_url = uri_unescape($query->param("l"));
+			}elsif( defined $query->param("oaurl")){
+				$return_url = uri_unescape($query->param("oaurl"));
+				print $query->redirect($return_url);
 			}else{
 				$return_url = $ENV{'REQUEST_SCHEME'}.'://'.$ENV{'HTTP_HOST'}.'/cgi-bin/koha/opac-user.pl';
 			}
