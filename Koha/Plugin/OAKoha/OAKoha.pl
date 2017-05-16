@@ -64,6 +64,8 @@ my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
 
 my $api_response = "";
 
+#Commenting cookie check to support Callback URL functionality
+=head1
 if($query->cookie('oasession')==1){ # exit if OASession cookie exists.
 	if( defined $query->param("oaurl")){
 		my $return_url = uri_unescape($query->param("oaurl")); 
@@ -71,6 +73,7 @@ if($query->cookie('oasession')==1){ # exit if OASession cookie exists.
 	}
 	use Data::Dumper; die Dumper $query->cookie('oasession');
 }
+=cut
 
 #Get Configuration settings
 my ( $oaconnectionurl, $oareturnurl, $oaapikey, $oaconnectionid, $params) = "";
@@ -119,11 +122,23 @@ while ( my $r = $sth->fetchrow_hashref() ) {
         }else{$return_url = $oareturnurl;}
 		
 		#Connect to OA
-    	my %post_json = ("connectionID"=> $oaconnectionid,
-						"uniqueUserIdentifier"=> $borrow->{userid},
-						"displayName"=> $borrow->{userid},
-						"returnUrl"=> $return_url,
-						"attributes"=> $attrib_json);
+	my %post_json;
+	if (defined $query->param("returnData")){
+		my $returnData = $query->param("returnData");
+		%post_json = ("connectionID"=> $oaconnectionid,
+				"uniqueUserIdentifier"=> $borrow->{userid},
+				"displayName"=> $borrow->{userid},
+				"returnData"=> $returnData,
+				"attributes"=> $attrib_json);
+	}
+	else{
+
+    		%post_json = ("connectionID"=> $oaconnectionid,
+				"uniqueUserIdentifier"=> $borrow->{userid},
+				"displayName"=> $borrow->{userid},
+				"returnUrl"=> $return_url,
+				"attributes"=> $attrib_json);
+	}
 		
 	if (defined $query->param("request")){use Data::Dumper; die Dumper %post_json;}
 	
