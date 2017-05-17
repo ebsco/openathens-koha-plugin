@@ -10,7 +10,7 @@ Quick Installation steps
 
 Download the package file oa_Plugin_xx.kpz
 
-Login to Koha Admin and go to the plugin screen
+Login to Koha Admin and go to Tools-> Plugin ( Make sure Koha plugin is enabled)
 
 Upload Plugin
 
