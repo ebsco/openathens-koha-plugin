@@ -18,8 +18,10 @@ Click on Run Tool and follow instructions.
 
 Click on Configure and enter required details from OA admin.
 
-Go to Koha Administration -> System preference -> Opac -> OPACUserJS
+Go to Koha Administration -> System preference -> Opac -> OPACUserJS and add the following section of code:
 
 ```
 /\*oa{\*/var oas=document.createElement( 'script' );oas.type = 'text/javascript';oas.src='/plugin/Koha/Plugin/OAKoha/OAKoha.js';document.body.appendChild(oas);/\*}oa\*/
 ```
+
+
