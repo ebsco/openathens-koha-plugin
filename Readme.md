@@ -3,7 +3,7 @@ openathens-koha-plugin
 
 openathens-koha-plugin
 
-Tested on Koha v 16.11+
+Tested on Koha v 17.11
 
 Quick Installation steps
 ==================
