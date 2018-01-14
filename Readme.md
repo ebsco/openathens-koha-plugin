@@ -5,6 +5,8 @@ openathens-koha-plugin
 
 Tested on Koha v 16.11+
 
+Switch to Koha-v17.11x branch for Koha v 17.11 supprt
+
 Quick Installation steps
 ==================
 
