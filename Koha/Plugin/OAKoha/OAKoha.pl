@@ -22,6 +22,8 @@ use warnings;
 
 use CGI qw ( -utf8 );
 
+use Koha::Patrons;
+
 use C4::Auth;
 use C4::Koha;
 use C4::Output;
@@ -87,7 +89,6 @@ while ( my $r = $sth->fetchrow_hashref() ) {
                 when('params') {$params=$r->{plugin_value};}
 	}
 }
-	require C4::Members;
 	my $base_url = $oaconnectionurl;
 	my $api_key = $oaapikey;
 
@@ -95,8 +96,8 @@ while ( my $r = $sth->fetchrow_hashref() ) {
 	#Borrower details are obtained in context of a logged in user.
 	my @params_arr = split /,/, $params;
 	my $attrib_json = {};
-	
-	my $borrow = C4::Members::GetMember( borrowernumber => $borrowernumber );
+
+	my $borrow = Koha::Patrons->find( $borrowernumber )->unblessed;
 	if (defined $query->param("borrower")){use Data::Dumper; die Dumper $borrow;}
 	
 	if (scalar @params_arr > 0){
