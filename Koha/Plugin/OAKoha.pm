@@ -150,7 +150,10 @@ sub SetupTool {
 		}
 	}
 
-	my $enableOAQuery = C4::Context->dbh->do("UPDATE `systempreferences` SET `value`='".$OpacUserJS."' WHERE `variable`='OpacUserJS'");
+    my $dbh = C4::Context->dbh;
+    my $update_sql = "UPDATE systempreferences SET value = ? WHERE variable = 'OpacUserJS'";
+    my $update_sth = $dbh->prepare($update_sql);
+    $update_sth->execute($OpacUserJS);
 
 	
 		$self->store_data(
