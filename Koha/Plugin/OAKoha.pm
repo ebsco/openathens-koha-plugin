@@ -16,7 +16,7 @@ my $PluginDir = C4::Context->config("pluginsdir");
 $PluginDir = $PluginDir.'/Koha/Plugin/OAKoha';
 
 ## Here we set our plugin version
-our $VERSION = 16.1105;
+our $VERSION = 16.1106;
 
 ## Here is our metadata, some keys are required, some are optional
 our $metadata = {
@@ -25,9 +25,9 @@ our $metadata = {
     description =>
 'This plugin integrates Open Athens(OA) in Koha.<p>Go to Actions:Configure to set the API connection then go to the Actions:Run to configure attributes.</p>',
     date_authored   => '2017-03-28',
-    date_updated    => '2017-05-16',
+    date_updated    => '2018-01-30',
     minimum_version => '16.11',
-    maximum_version => '',
+    maximum_version => '17.11',
     version         => $VERSION,
 };
 
@@ -123,7 +123,7 @@ sub SetupTool {
 		#use Data::Dumper; die Dumper @borrower_fields;
 		
 		my $enableOA = 0;
-		if($OpacUserJS =~m/\/\*oa{\*\/.*\/\*\}oa\*\//){$enableOA=1;}
+		if($OpacUserJS =~m/\/\*oa\{\*\/.*\/\*\}oa\*\//){$enableOA=1;}
 				
 				
 				
@@ -141,12 +141,12 @@ sub SetupTool {
 	my $oaJS = '/*oa{*/var oas=document.createElement( "script" );oas.type = "text/javascript";oas.src="/plugin/Koha/Plugin/OAKoha/OAKoha.js";document.body.appendChild(oas);/*}oa*/';
 
 	if($oaEnableSetting==1){
-		if($OpacUserJS =~m/\/\*oa{\*\/.*\/\*\}oa\*\//){}else{
+		if($OpacUserJS =~m/\/\*oa\{\*\/.*\/\*\}oa\*\//){}else{
 			$OpacUserJS = $OpacUserJS.$oaJS;
 		}
 	}else{
-		if($OpacUserJS =~m/\/\*oa{\*\/.*\/\*\}oa\*\//){
-			$OpacUserJS=~s/\/\*oa{\*\/.*\/\*\}oa\*\///g;
+		if($OpacUserJS =~m/\/\*oa\{\*\/.*\/\*\}oa\*\//){
+			$OpacUserJS=~s/\/\*oa\{\*\/.*\/\*\}oa\*\///g;
 		}
 	}
 
