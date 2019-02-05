@@ -23,7 +23,7 @@ our $metadata = {
     description =>
 'This plugin integrates Open Athens(OA) in Koha.<p>Go to Actions:Configure to set the API connection then go to the Actions:Run to configure attributes.</p>',
     date_authored   => '2017-03-28',
-    date_updated    => '2018-01-30',
+    date_updated    => '2019-02-06',
     minimum_version => '16.11',
     maximum_version => '17.11',
     version         => $VERSION,
