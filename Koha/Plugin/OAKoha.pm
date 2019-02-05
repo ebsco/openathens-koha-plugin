@@ -10,8 +10,6 @@ use Cwd            qw( abs_path );
 use File::Basename qw( dirname );
 use JSON qw/decode_json encode_json/;
 
-
-
 my $PluginDir = C4::Context->config("pluginsdir");
 $PluginDir = $PluginDir.'/Koha/Plugin/OAKoha';
 
@@ -79,7 +77,6 @@ sub configure {
         print $template->output();
     }
     else {
-		
 		$self->store_data(
 				{
 					oaconnectionurl 	=> ($cgi->param('oaconnectionurl')?$cgi->param('oaconnectionurl'):"-"),
@@ -92,7 +89,6 @@ sub configure {
         $self->go_home();
     }
 }
-
 
 sub SetupTool {
 	my ( $self, $args ) = @_;
@@ -154,7 +150,6 @@ sub SetupTool {
     my $update_sql = "UPDATE systempreferences SET value = ? WHERE variable = 'OpacUserJS'";
     my $update_sth = $dbh->prepare($update_sql);
     $update_sth->execute($OpacUserJS);
-
 	
 		$self->store_data(
 				{
@@ -165,22 +160,15 @@ sub SetupTool {
 	}
 }
 
-
 sub install() {
     my ( $self, $args ) = @_;
-	
-	my $pluginSQL = C4::Context->dbh->do("INSERT INTO `plugin_data` (`plugin_class`, `plugin_key`, `plugin_value`) VALUES ('OA::Plugin', 'installedversion', '".$VERSION."')");
+	my $pluginSQL = C4::Context->dbh->do("INSERT IGNORE INTO `plugin_data` (`plugin_class`, `plugin_key`, `plugin_value`) VALUES ('OA::Plugin', 'installedversion', '".$VERSION."')");
+	$pluginSQL = C4::Context->dbh->do("UPDATE `plugin_data` SET `plugin_value` ='".$VERSION."' WHERE `plugin_class` = 'OA::Plugin' AND `plugin_key`= 'installedversion'");
 }
-
-
-
 
 sub uninstall() {
     my ( $self, $args ) = @_;
-
 	my $enableOA = C4::Context->dbh->do("INSERT INTO `systempreferences` (`variable`, `value`, `explanation`, `type`) VALUES ('OAEnabled', '1', 'If ON, enables OA Authentication on Koha login.', 'YesNo') ON DUPLICATE KEY UPDATE `variable`='OAEnabled', `value`=1, `explanation`='If ON, enables OA Authentication on Koha login.', `type`='YesNo'");
-	
-	
 	my $enableOAUpdate = C4::Context->dbh->do("UPDATE `systempreferences` SET `value`='1' WHERE `variable`='OAEnabled'");
 }
 1;

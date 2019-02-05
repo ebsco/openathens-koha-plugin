@@ -49,7 +49,8 @@ my $sth = $dbh->prepare($sql);
 $sth->execute( $PluginClass );
 $sth->execute();
 
-my $PluginDir = dirname(abs_path($0));
+my $PluginDir = C4::Context->config("pluginsdir");
+$PluginDir = $PluginDir.'/Koha/Plugin/OAKoha';
 
 my ( $template, $borrowernumber, $cookie ) = get_template_and_user(
     {
