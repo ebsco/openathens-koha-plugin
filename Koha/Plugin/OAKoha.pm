@@ -10,13 +10,11 @@ use Cwd            qw( abs_path );
 use File::Basename qw( dirname );
 use JSON qw/decode_json encode_json/;
 
-
-
 my $PluginDir = C4::Context->config("pluginsdir");
 $PluginDir = $PluginDir.'/Koha/Plugin/OAKoha';
 
 ## Here we set our plugin version
-our $VERSION = 16.1105;
+our $VERSION = 16.1106;
 
 ## Here is our metadata, some keys are required, some are optional
 our $metadata = {
@@ -25,9 +23,9 @@ our $metadata = {
     description =>
 'This plugin integrates Open Athens(OA) in Koha.<p>Go to Actions:Configure to set the API connection then go to the Actions:Run to configure attributes.</p>',
     date_authored   => '2017-03-28',
-    date_updated    => '2017-05-16',
+    date_updated    => '2019-02-06',
     minimum_version => '16.11',
-    maximum_version => '',
+    maximum_version => '17.11',
     version         => $VERSION,
 };
 
@@ -79,7 +77,6 @@ sub configure {
         print $template->output();
     }
     else {
-		
 		$self->store_data(
 				{
 					oaconnectionurl 	=> ($cgi->param('oaconnectionurl')?$cgi->param('oaconnectionurl'):"-"),
@@ -92,7 +89,6 @@ sub configure {
         $self->go_home();
     }
 }
-
 
 sub SetupTool {
 	my ( $self, $args ) = @_;
@@ -123,7 +119,7 @@ sub SetupTool {
 		#use Data::Dumper; die Dumper @borrower_fields;
 		
 		my $enableOA = 0;
-		if($OpacUserJS =~m/\/\*oa{\*\/.*\/\*\}oa\*\//){$enableOA=1;}
+		if($OpacUserJS =~m/\/\*oa\{\*\/.*\/\*\}oa\*\//){$enableOA=1;}
 				
 				
 				
@@ -141,17 +137,19 @@ sub SetupTool {
 	my $oaJS = '/*oa{*/var oas=document.createElement( "script" );oas.type = "text/javascript";oas.src="/plugin/Koha/Plugin/OAKoha/OAKoha.js";document.body.appendChild(oas);/*}oa*/';
 
 	if($oaEnableSetting==1){
-		if($OpacUserJS =~m/\/\*oa{\*\/.*\/\*\}oa\*\//){}else{
+		if($OpacUserJS =~m/\/\*oa\{\*\/.*\/\*\}oa\*\//){}else{
 			$OpacUserJS = $OpacUserJS.$oaJS;
 		}
 	}else{
-		if($OpacUserJS =~m/\/\*oa{\*\/.*\/\*\}oa\*\//){
-			$OpacUserJS=~s/\/\*oa{\*\/.*\/\*\}oa\*\///g;
+		if($OpacUserJS =~m/\/\*oa\{\*\/.*\/\*\}oa\*\//){
+			$OpacUserJS=~s/\/\*oa\{\*\/.*\/\*\}oa\*\///g;
 		}
 	}
 
-	my $enableOAQuery = C4::Context->dbh->do("UPDATE `systempreferences` SET `value`='".$OpacUserJS."' WHERE `variable`='OpacUserJS'");
-
+    my $dbh = C4::Context->dbh;
+    my $update_sql = "UPDATE systempreferences SET value = ? WHERE variable = 'OpacUserJS'";
+    my $update_sth = $dbh->prepare($update_sql);
+    $update_sth->execute($OpacUserJS);
 	
 		$self->store_data(
 				{
@@ -162,22 +160,15 @@ sub SetupTool {
 	}
 }
 
-
 sub install() {
     my ( $self, $args ) = @_;
-	
-	my $pluginSQL = C4::Context->dbh->do("INSERT INTO `plugin_data` (`plugin_class`, `plugin_key`, `plugin_value`) VALUES ('OA::Plugin', 'installedversion', '".$VERSION."')");
+	my $pluginSQL = C4::Context->dbh->do("INSERT IGNORE INTO `plugin_data` (`plugin_class`, `plugin_key`, `plugin_value`) VALUES ('OA::Plugin', 'installedversion', '".$VERSION."')");
+	$pluginSQL = C4::Context->dbh->do("UPDATE `plugin_data` SET `plugin_value` ='".$VERSION."' WHERE `plugin_class` = 'OA::Plugin' AND `plugin_key`= 'installedversion'");
 }
-
-
-
 
 sub uninstall() {
     my ( $self, $args ) = @_;
-
 	my $enableOA = C4::Context->dbh->do("INSERT INTO `systempreferences` (`variable`, `value`, `explanation`, `type`) VALUES ('OAEnabled', '1', 'If ON, enables OA Authentication on Koha login.', 'YesNo') ON DUPLICATE KEY UPDATE `variable`='OAEnabled', `value`=1, `explanation`='If ON, enables OA Authentication on Koha login.', `type`='YesNo'");
-	
-	
 	my $enableOAUpdate = C4::Context->dbh->do("UPDATE `systempreferences` SET `value`='1' WHERE `variable`='OAEnabled'");
 }
 1;
