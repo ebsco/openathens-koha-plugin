@@ -19,3 +19,8 @@ Upload Plugin
 Click on Run Tool and follow instructions.
 
 Click on Configure and enter required details from OA admin.
+
+Troubleshooting
+==================
+Apache may need to be configured to correctly run the plugin
+See https://github.com/ebsco/edsapi-koha-plugin/wiki/Apache-Setup for more details
