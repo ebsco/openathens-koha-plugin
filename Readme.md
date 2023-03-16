@@ -7,6 +7,10 @@ Tested on Koha v 16.11+
 
 Switch to Koha-v17.11x branch for Koha v 17.11 supprt
 
+End of Support Notice
+==================
+EBSCO now supports OpenAthens Logins through an internal connection service leveraging ILS-DI.  No additional development will be done on this plugin.
+
 Quick Installation steps
 ==================
 
