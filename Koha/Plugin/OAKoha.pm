@@ -105,15 +105,11 @@ sub SetupTool {
 		my $sth = $dbh->prepare($sql);
 		$sth->execute();
 		my @borrower_fields;
-		while ( my $r = $sth->fetchrow_hashref() ) 
-		{ 
-			given($r->{Field}){
-			when('categorycode') {  $r->{Field} = 'category';
-						push @borrower_fields, $r->{Field};
-					     }
-			default {     push @borrower_fields, $r->{Field};
-				}
-			}
+		while ( my $r = $sth->fetchrow_hashref() ) {
+			$r->{Field} = 'category'
+				if $r->{Field} eq 'categorycode';
+
+			push @borrower_fields, $r->{Field};
 		}
 		#Print Borrower fields
 		#use Data::Dumper; die Dumper @borrower_fields;

@@ -38,7 +38,7 @@ use URI::Escape;
 use Try::Tiny;
 use Net::IP;
 
-my $query = new CGI;
+my $query = CGI->new;
 my $dbh = C4::Context->dbh;
 
 my $PluginClass='Koha::Plugin::OAKoha';
@@ -80,13 +80,17 @@ if($query->cookie('oasession')==1){ # exit if OASession cookie exists.
 my ( $oaconnectionurl, $oareturnurl, $oaapikey, $oaconnectionid, $params) = "";
 
 while ( my $r = $sth->fetchrow_hashref() ) {
-	given($r->{plugin_key}){
-		when('oaconnectionurl') {$oaconnectionurl=$r->{plugin_value};}
-		when('oareturnurl') {$oareturnurl=$r->{plugin_value};}
-		when('oaapikey') {$oaapikey=$r->{plugin_value};}
-                when('oaconnectionid') {$oaconnectionid=$r->{plugin_value};}
-                when('params') {$params=$r->{plugin_value};}
-	}
+    if ( $r->{plugin_key} eq 'oaconnectionurl' ) {
+        $oaconnectionurl = $r->{plugin_value};
+    } elsif ( $r->{plugin_key} eq 'oareturnurl' ) {
+        $oareturnurl = $r->{plugin_value};
+    } elsif ( $r->{plugin_key} eq 'oaapikey' ) {
+        $oaapikey = $r->{plugin_value};
+    } elsif ( $r->{plugin_key} eq 'oaconnectionid' ) {
+        $oaconnectionid = $r->{plugin_value};
+    } elsif ( $r->{plugin_key} eq 'params' ) {
+        $params = $r->{plugin_value};
+    }
 }
 	require C4::Members;
 	my $base_url = $oaconnectionurl;
@@ -98,29 +102,30 @@ while ( my $r = $sth->fetchrow_hashref() ) {
 	my $attrib_json = {};
 	
 	my $borrow = C4::Members::GetMember( borrowernumber => $borrowernumber );
-	if (defined $query->param("borrower")){use Data::Dumper; die Dumper $borrow;}
-	
-	if (scalar @params_arr > 0){
-    		while (my $element = shift(@params_arr)){ #Build Attributes
-			given($element){
-			when('category') {  $attrib_json->{"category"} = Koha::Template::Plugin::Categories->GetName($borrow->{"categorycode"});
-					     }
-			default {     $attrib_json->{$element} = $borrow->{$element};
-				}
+	if ( defined $query->param("borrower") ) { use Data::Dumper; die Dumper $borrow; }
+
+	if ( scalar @params_arr > 0 ) {
+		while ( my $element = shift(@params_arr) ) {    #Build Attributes
+			if ( $element eq 'category' ) {
+				$attrib_json->{"category"} =
+					Koha::Template::Plugin::Categories->GetName( $borrow->{"categorycode"} );
+			} else {
+				$attrib_json->{$element} = $borrow->{$element};
 			}
-    		}
-    	}
-        my $return_url;
-        if ($oareturnurl == '-' || $oareturnurl == '')
-        {
-			if( defined $query->param("l")){
-				$return_url = uri_unescape($query->param("l"));
-			}elsif( defined $query->param("oaurl")){
-				$return_url = uri_unescape($query->param("oaurl"));
-			}else{
-				$return_url = $ENV{'REQUEST_SCHEME'}.'://'.$ENV{'HTTP_HOST'}.'/cgi-bin/koha/opac-user.pl';
-			}
-        }else{$return_url = $oareturnurl;}
+		}
+	}
+	my $return_url;
+	if ( $oareturnurl == '-' || $oareturnurl == '' ) {
+		if ( defined $query->param("l") ) {
+			$return_url = uri_unescape( $query->param("l") );
+		} elsif ( defined $query->param("oaurl") ) {
+			$return_url = uri_unescape( $query->param("oaurl") );
+		} else {
+			$return_url = $ENV{'REQUEST_SCHEME'} . '://' . $ENV{'HTTP_HOST'} . '/cgi-bin/koha/opac-user.pl';
+		}
+	} else {
+		$return_url = $oareturnurl;
+	}
 		
 		#Connect to OA
 	my %post_json;
