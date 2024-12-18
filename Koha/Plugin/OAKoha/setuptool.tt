@@ -12,16 +12,21 @@
 <div id="breadcrumbs"><a href="/cgi-bin/koha/mainpage.pl">Home</a> &rsaquo; <a href="/cgi-bin/koha/plugins/plugins-home.pl">Plugins</a> &rsaquo; OA LA API Integration &rsaquo; Setup Tool</div>
 
 <div id="doc3">
-    <div align="right" style="float:right;width:170px"><a href="http://www.openathens.net" target="_blank"><img src="http://www.openathens.net/images/content/OA_logo.jpg" style="width:160px" ></a>
-<p>Visit <a href="http://admin.openathens.net" target="_blank">OA Admin</a> to configure the OA LA API profile</p></div>
-
+    <div align="right" style="float:right;width:170px">
+        <a href="http://www.openathens.net" target="_blank">
+            <img src="https://www.openathens.net/app/uploads/2022/08/OA_PRIMARY-LOGO_RGB_-BLUE.png" style="width:160px" />
+        </a>
+        <p>Visit <a href="http://admin.openathens.net" target="_blank">OA Admin</a> to configure the connection</p>
+    </div>
     <h3>Koha: OpenAthens: Setup Tool</h3>
 		<p>When you connect Koha to OpenAthens you have the ability to map attributes from one system to the other - e.g. the 'email' for a borrower could be mapped to an Email address attribute in OpenAthens. <br>
 		<a href="https://docs.openathens.net/display/public/MD/Attribute+mapping" target="_blank">Click here</a> to learn more about Attribute mapping.</p>
 
-<form method="post">
-        <input type="hidden" name="class" value="[% CLASS %]"/>
+    <form method="post">
+        [% INCLUDE 'csrf-token.inc' %]
+        <input type="hidden" name="class"  value="[% CLASS %]"/>
         <input type="hidden" name="method" value="[% METHOD %]"/>
+        <input type="hidden" name="op"     value="cud-save-selections"/>
 
 <!-- Version control table to be used in future -->
 <!--table width="100%" border="0" cellpadding="5" cellspacing="5">
